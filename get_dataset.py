@@ -5,7 +5,7 @@ import pydicom
 import numpy as np
 import dicom_numpy
 from os import listdir
-from scipy.misc import imread, imresize
+from scipy.misc import imread, imresize, imsave
 from sklearn.model_selection import train_test_split
 
 def get_np(np_file_path):
@@ -51,6 +51,11 @@ def get_seg_img(images_path, img_size):
             images = np.dstack((images, img))
 
     return images
+
+def save_seg_imgs(seg_imgs, save_path):
+    for i in range(0, seg_imgs.shape[-1]):
+        imsave(save_path+'/SegImg_'+str(i)+'.png', seg_imgs[:,:,i])
+    print('Segmentated images saved into the ' + save_path)
 
 def scan_pading(scan, seg_img, section_size = 16):
     # For easly split:

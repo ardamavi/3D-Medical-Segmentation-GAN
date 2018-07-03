@@ -8,6 +8,8 @@ from keras.callbacks import ModelCheckpoint, TensorBoard
 epochs = 25
 batch_size = 8
 
+# TODO: Train GAN
+
 def train_model(model, X, X_test, Y, Y_test):
     if not os.path.exists('Data/Checkpoints/'):
         os.makedirs('Data/Checkpoints/')

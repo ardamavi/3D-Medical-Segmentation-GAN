@@ -3,6 +3,7 @@
 import os
 from keras.models import Model
 from keras import backend as K
+from keras.utils import multi_gpu_model
 from keras.models import model_from_json
 from keras.layers import Input, Conv3D, UpSampling3D, Activation, MaxPooling3D, concatenate
 
@@ -34,15 +35,13 @@ def get_model(model_path, weights_path):
     return model
 
 # Loss Function:
-def dice_coef(y_true, y_pred):
-    smooth = 1.
-    y_true_f = K.flatten(y_true)
-    y_pred_f = K.flatten(y_pred)
-    intersection = K.sum(y_true_f * y_pred_f)
-    return (2. * intersection + smooth) / (K.sum(y_true_f) + K.sum(y_pred_f) + smooth)
+def dice_coefficient(y_true, y_pred):
+    flat_y_true = K.flatten(y_true)
+    flat_y_pred = K.flatten(y_pred)
+    return -2. * K.sum(flat_y_true * flat_y_pred) / (K.sum(flat_y_true) + K.sum(flat_y_pred))
 
-def dice_coef_loss(y_true, y_pred):
-    return -dice_coef(y_true, y_pred)
+def dice_coefficient_loss(y_true, y_pred):
+    return - dice_coefficient(y_true, y_pred)
 
 def get_unet(data_shape):
 
@@ -122,9 +121,16 @@ def get_unet(data_shape):
 
     model = Model(inputs=inputs, outputs=outputs)
 
-    model.compile(optimizer = 'adadelta', loss=dice_coef_loss, metrics=[dice_coef])
+    try:
+        model = multi_gpu_model(model)
+    except:
+        pass
+
+    model.compile(optimizer = 'adadelta', loss=dice_coefficient_loss, metrics=[dice_coefficient])
 
     return model
+
+# TODO: GAN
 
 if __name__ == '__main__':
     model = get_unet((512,512,16,1))
