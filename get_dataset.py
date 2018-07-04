@@ -60,11 +60,15 @@ def save_seg_imgs(seg_imgs, save_path):
 def scan_pading(scan, seg_img, section_size = 16):
     # For easly split:
     pad_size = section_size - (scan.shape[-1] % section_size)
-    padded_scan = np.pad(scan, ((0,0),(0,0),(0,pad_size)), 'constant')
-    try:
-        padded_seg_img = np.pad(seg_img, ((0,0),(0,0),(0,pad_size)), 'constant')
-    except:
-        padded_seg_img = None
+    if pad_size != 16:
+        padded_scan = np.pad(scan, ((0,0),(0,0),(0,pad_size)), 'constant')
+        try:
+            padded_seg_img = np.pad(seg_img, ((0,0),(0,0),(0,pad_size)), 'constant')
+        except:
+            padded_seg_img = None
+    else:
+        padded_scan = scan
+        padded_seg_img = seg_img
     return padded_scan, padded_seg_img
 
 

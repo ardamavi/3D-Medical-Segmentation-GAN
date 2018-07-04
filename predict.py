@@ -16,8 +16,8 @@ def predict(model, scans):
 
     # For splitting:
     splitted_scans = []
-    for i in range(0, scans.shape[-1]-15, 16):
-        splitted_scans.append(scans[:,:,i:i+16])
+    for i in range(0, X.shape[-1]-15, 16):
+        splitted_scans.append(X[:,:,i:i+16])
     X = np.array(splitted_scans, dtype='float64')
 
     X = ((X-np.min(X))/(np.max(X)-np.min(X))).reshape(X.shape+(1,))
@@ -30,9 +30,7 @@ def predict(model, scans):
             images = one_img
         else:
             images = np.dstack((images, one_img))
-    Y = np.array(images, dtype='float64')
-
-    Y = Y[:,:,0:Y.shape[-1]-pad_size] # Remove pads from output.
+    Y = images[:,:,0:images.shape[-1]-pad_size] # Remove pads from output.
 
     for i in range(Y.shape[-1]):
         Y[:,:,i] = np.rot90(np.fliplr(Y[:,:,i]))
