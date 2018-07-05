@@ -24,15 +24,18 @@
 
 # -= Resources =-
 #
-#SBATCH --job-name=Ult
+#SBATCH --job-name=3D-Seg
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --partition=short
-#SBATCH --time=01:00:00
-#SBATCH --mem=64000
-#SBATCH --gres gpu:2
+#SBATCH --partition=mid
+#SBATCH --time=24:00:00
+#SBATCH --mem=128000
+#SBATCH --gres gpu:1
+#SBATCH --qos=ai
+#SBATCH --account=ai
+#SBATCH --partition=ai
 #SBATCH --output=outputs.out
-#SBATCH --mail-type=ALL
+#SBATCH --mail-type=END
 #SBATCH --mail-user=ardamavi2@gmail.com
 
 ################################################################################

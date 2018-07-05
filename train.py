@@ -2,13 +2,11 @@
 
 import os
 from get_dataset import read_npy_dataset
-from get_models import get_unet, save_model
+from get_models import get_segment_model, save_model
 from keras.callbacks import ModelCheckpoint, TensorBoard
 
 epochs = 25
 batch_size = 8
-
-# TODO: Train GAN
 
 def train_model(model, X, X_test, Y, Y_test):
     if not os.path.exists('Data/Checkpoints/'):
@@ -21,9 +19,11 @@ def train_model(model, X, X_test, Y, Y_test):
 
     return model
 
+# TODO: Train GAN
+
 def main():
     X, X_test, Y, Y_test = read_npy_dataset('Data/npy_dataset', test_size=0.2)
-    model = get_unet(data_shape = (512, 512, 16, 1))
+    model = get_segment_model(data_shape = (512, 512, 16, 1))
     print(model.summary())
     save_model(model, path='Data/Model/', model_name = 'model', weights_name = 'weights')
     print('Non-Trained model saved to "Data/Model"!')

@@ -107,10 +107,10 @@ def get_dataset(dataset_path, dicom_file = 'DICOM_anon', ground_file = 'Ground',
             for one_seg_img in seg_img:
                 seg_imgs.append(one_seg_img)
 
-    scans = np.array(scans, dtype='float64')
+    scans = np.array(scans, dtype='float32')
 
     scans = (scans-np.min(scans))/(np.max(scans)-np.min(scans)) # Normalization
-    seg_imgs = np.array(seg_imgs).astype('float64')/255
+    seg_imgs = np.array(seg_imgs).astype('float32')/255
 
     scans = scans.reshape((scans.shape[0],)+section_size+(1,))
     seg_imgs = seg_imgs.reshape((seg_imgs.shape[0],)+section_size+(1,))
@@ -139,4 +139,4 @@ def read_npy_dataset(npy_dataset_path, test_size = 0.2):
     return X, X_test, Y, Y_test
 
 if __name__ == '__main__':
-    X, X_test, Y, Y_test = get_dataset(dataset_path = 'Data/Dataset', dicom_file = 'DICOM_anon', ground_file = 'Ground', section_size = (512, 512, 16), test_size = 0.3, save_npy = True, dataset_save_path = 'Data/npy_dataset')
+    X, X_test, Y, Y_test = get_dataset(dataset_path = 'Data/Dataset', dicom_file = 'DICOM_anon', ground_file = 'Ground', section_size = (512, 512, 16), test_size = 0.2, save_npy = True, dataset_save_path = 'Data/npy_dataset')

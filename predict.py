@@ -18,7 +18,7 @@ def predict(model, scans):
     splitted_scans = []
     for i in range(0, X.shape[-1]-15, 16):
         splitted_scans.append(X[:,:,i:i+16])
-    X = np.array(splitted_scans, dtype='float64')
+    X = np.array(splitted_scans, dtype='float32')
 
     X = ((X-np.min(X))/(np.max(X)-np.min(X))).reshape(X.shape+(1,))
     Y = model.predict(X)
@@ -42,6 +42,8 @@ def main(dicom_path):
     if not os.path.exists(dicom_path):
         print('DICOM file not exists!')
         return None
+
+    # TODO: GAN
 
     # Getting model:
     with open('Data/Model/model.json', 'r') as model_file:
