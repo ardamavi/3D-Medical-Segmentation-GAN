@@ -1,12 +1,11 @@
 # Arda Mavi
 
 import os
-import tensorflow as tf
 from keras.models import Model
 from keras import backend as K
 from keras.utils import multi_gpu_model
 from keras.models import model_from_json
-from keras.layers import Input, Conv3D, Dense, UpSampling3D, Activation, MaxPooling3D, Dropout, concatenate
+from keras.layers import Input, Conv3D, Dense, UpSampling3D, Activation, MaxPooling3D, Dropout, concatenate, Flatten
 
 def save_model(model, path='Data/Model/', model_name = 'model', weights_name = 'weights'):
     if not os.path.exists(path):
@@ -78,6 +77,9 @@ def get_segment_model(data_shape):
     conv_block_5 = Conv3D(256, (3, 3, 3), strides=(1, 1, 1), padding='same')(conv_block_5)
     conv_block_5 = Activation('relu')(conv_block_5)
 
+    encoder = Model(inputs=inputs, outputs=conv_block_5)
+    encoder.compile(optimizer = 'adadelta', loss='mse', metrics=['acc'])
+
     up_block_1 = UpSampling3D((2, 2, 2))(conv_block_5)
     up_block_1 = Conv3D(512, (3, 3, 3), strides=(1, 1, 1), padding='same')(up_block_1)
 
@@ -132,37 +134,44 @@ def get_segment_model(data_shape):
         pass
     """
 
-    run_opts = tf.RunOptions(report_tensor_allocations_upon_oom = True)
+    model.compile(optimizer = 'adadelta', loss=dice_coefficient_loss, metrics=[dice_coefficient])
 
-    model.compile(optimizer = 'adadelta', loss=dice_coefficient_loss, metrics=[dice_coefficient], options = run_opts)
-
-    return model
+    return model, encoder
 
 # GAN:
-def get_GAN(input_shape, Generator, Discriminator):
-    input_gan = Input(shape=(input_shape))
-    generated_seg = Generator(input_gan)
-    gan_output = Discriminator(generated_seg)
+def get_GAN(input_shape_1, input_shape_2, Generator, Discriminator):
+    input_gan_1 = Input(shape=(input_shape_1))
+    input_gan_2 = Input(shape=(input_shape_2))
+    generated_seg = Generator(input_gan_1)
+    gan_output = Discriminator([generated_seg, input_gan_2])
 
     # Compile GAN:
-    gan = Model(input_gan, gan_output)
+    gan = Model([input_gan_1, input_gan_2], gan_output)
     gan.compile(optimizer='adadelta', loss='mse', metrics=['accuracy'])
 
     print('GAN Architecture:')
     print(gan.summary())
-    return GAN
+    return gan
 
 def get_Generator(input_shape):
-    Generator = get_segment_model(input_shape)
+    Generator, _ = get_segment_model(input_shape)
     print('Generator Architecture:')
     print(Generator.summary())
     return Generator
 
-def get_Discriminator(num_summary):
-    # TODO
-    dis_inputs = Input(shape=(2*num_summary,))
+def get_Discriminator(input_shape_1, input_shape_2):
 
-    dis_fc_1 = Dense(512)(sn_inputs)
+    dis_inputs_1 = Input(shape=input_shape_1) # From Segment Model
+    dis_inputs_2 = Input(shape=input_shape_2) # From Segmentated Image
+
+    flat_1 = Flatten()(dis_inputs_1)
+    flat_2 = Flatten()(dis_inputs_2)
+
+    merge_dis = concatenate([flat_1, flat_2])
+
+    dis_fc_1 = Dense(512)(merge_dis)
+    dis_fc_1 = Activation('relu')(dis_fc_1)
+    dis_fc_1 = Dense(512)(dis_fc_1)
     dis_fc_1 = Activation('relu')(dis_fc_1)
 
     dis_drp_1 = Dropout(0.2)(dis_fc_1)
@@ -180,15 +189,15 @@ def get_Discriminator(num_summary):
     dis_fc_4 = Dense(1)(dis_drp_3)
     dis_similarity_output = Activation('sigmoid')(dis_fc_4)
 
-    Discriminator = Model(sn_inputs, sn_similarity_output)
-    Discriminator.compile(optimizer='adadelta', loss='mse')
+    Discriminator = Model(inputs=[dis_inputs_1, dis_inputs_2], outputs=dis_similarity_output)
+    Discriminator.compile(optimizer='adadelta', loss='mse', metrics=['accuracy'])
 
     print('Discriminator Architecture:')
     print(Discriminator.summary())
-    pass
+    return Discriminator
 
 if __name__ == '__main__':
-    model = get_segment_model((512,512,16,1))
-    print(model.summary())
-    save_model(model, path='Data/Model/', model_name = 'model', weights_name = 'weights')
-    print('Model saved to "Data/Model"!')
+    segment_model, encoder = get_segment_model((512,512,16,1))
+    generator = get_Generator((512,512,16,1))
+    discriminator = get_Discriminator((32,32,1,256), (512,512,16,1))
+    gan = get_GAN((512,512,16,1), (512,512,16,1), generator, discriminator)

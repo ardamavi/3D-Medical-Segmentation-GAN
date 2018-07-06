@@ -23,14 +23,14 @@ def train_model(model, X, X_test, Y, Y_test):
 
 def main():
     X, X_test, Y, Y_test = read_npy_dataset('Data/npy_dataset', test_size=0.2)
-    model = get_segment_model(data_shape = (512, 512, 16, 1))
-    print(model.summary())
-    save_model(model, path='Data/Model/', model_name = 'model', weights_name = 'weights')
+    segment_model, _ = get_segment_model(data_shape = (512, 512, 16, 1))
+    print(segment_model.summary())
+    save_model(segment_model, path='Data/Model/', model_name = 'model', weights_name = 'weights')
     print('Non-Trained model saved to "Data/Model"!')
-    model = train_model(model, X, X_test, Y, Y_test)
-    save_model(model, path='Data/Model/', model_name = 'model', weights_name = 'weights')
+    model = train_model(segment_model, X, X_test, Y, Y_test)
+    save_model(segment_model, path='Data/Model/', model_name = 'model', weights_name = 'weights')
     print('Trained model saved to "Data/Model"!')
-    return model
+    return segment_model
 
 if __name__ == '__main__':
     main()
