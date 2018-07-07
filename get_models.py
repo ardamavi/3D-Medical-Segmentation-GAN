@@ -38,7 +38,7 @@ def get_model(model_path, weights_path):
 def dice_coefficient(y_true, y_pred):
     flat_y_true = K.flatten(y_true)
     flat_y_pred = K.flatten(y_pred)
-    return -2. * K.sum(flat_y_true * flat_y_pred) / (K.sum(flat_y_true) + K.sum(flat_y_pred))
+    return 2. * K.sum(flat_y_true * flat_y_pred) / (K.sum(flat_y_true) + K.sum(flat_y_pred))
 
 def dice_coefficient_loss(y_true, y_pred):
     return - dice_coefficient(y_true, y_pred)
