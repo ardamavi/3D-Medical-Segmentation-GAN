@@ -16,7 +16,7 @@ def get_np(np_file_path):
     np_array = np.load(np_file_path)
     return np_array
 
-def get_scan(dicom_path):
+def get_scan(dicom_path, scan_size):
     # Getting DICOM images from path:
     if not os.path.exists(dicom_path):
         print('DICOM files not exists!')
@@ -24,7 +24,13 @@ def get_scan(dicom_path):
     dicom_files = listdir(dicom_path)
     dicom_files.sort()
     voxel_ndarray, ijk_to_xyz = dicom_numpy.combine_slices([pydicom.read_file(dicom_path+'/'+dcm_file, force=True) for dcm_file in dicom_files])
-    return voxel_ndarray
+    vox_array = []
+    for i in range(voxel_ndarray.shape[-1]):
+        if vox_array == []:
+            vox_array = imresize(voxel_ndarray[:,:,i], scan_size)
+        else:
+            vox_array = np.dstack((vox_array, imresize(voxel_ndarray[:,:,i], scan_size)))
+    return vox_array
 
 def get_img(data_path, img_size):
     # Getting image array from path:
@@ -87,7 +93,7 @@ def split_scans_imgs(scans, seg_img, section_size = 16):
     splitted_seg_img = np.array(splitted_seg_img)
     return splitted_scans, splitted_seg_img
 
-def get_dataset(dataset_path, dicom_file = 'DICOM_anon', ground_file = 'Ground', section_size = (512, 512, 16), test_size = 0.2, save_npy = True, dataset_save_path = 'Data/npy_dataset'):
+def get_dataset(dataset_path, dicom_file = 'DICOM_anon', ground_file = 'Ground', section_size = (256, 256, 16), test_size = 0.2, save_npy = True, dataset_save_path = 'Data/npy_dataset'):
     # Create dateset:
 
     scans, seg_imgs = [], []
@@ -96,7 +102,7 @@ def get_dataset(dataset_path, dicom_file = 'DICOM_anon', ground_file = 'Ground',
             print('Reading dataset: '+sample_id+' ...')
             sample_path = dataset_path+'/'+sample_id
 
-            scan = get_scan(sample_path+'/'+dicom_file)
+            scan = get_scan(sample_path+'/'+dicom_file, scan_size = section_size[0:2])
             seg_img = get_seg_img(sample_path+'/'+ground_file, img_size = section_size[0:2]+(1,))
 
             scan, seg_img = scan_pading(scan, seg_img, section_size = 16)
@@ -139,4 +145,4 @@ def read_npy_dataset(npy_dataset_path, test_size = 0.2):
     return X, X_test, Y, Y_test
 
 if __name__ == '__main__':
-    X, X_test, Y, Y_test = get_dataset(dataset_path = 'Data/Dataset', dicom_file = 'DICOM_anon', ground_file = 'Ground', section_size = (512, 512, 16), test_size = 0.2, save_npy = True, dataset_save_path = 'Data/npy_dataset')
+    X, X_test, Y, Y_test = get_dataset(dataset_path = 'Data/Dataset', dicom_file = 'DICOM_anon', ground_file = 'Ground', section_size = (256, 256, 16), test_size = 0.2, save_npy = True, dataset_save_path = 'Data/npy_dataset')

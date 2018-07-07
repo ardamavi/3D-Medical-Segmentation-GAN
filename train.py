@@ -19,11 +19,11 @@ def train_model(model, X, X_test, Y, Y_test):
 
     return model
 
-# TODO: Train GAN
+# TODO: Training GAN
 
 def main():
     X, X_test, Y, Y_test = read_npy_dataset('Data/npy_dataset', test_size=0.2)
-    segment_model, _ = get_segment_model(data_shape = (512, 512, 16, 1))
+    segment_model, _ = get_segment_model(data_shape = (256, 256, 16, 1))
     print(segment_model.summary())
     save_model(segment_model, path='Data/Model/', model_name = 'model', weights_name = 'weights')
     print('Non-Trained model saved to "Data/Model"!')
