@@ -38,7 +38,7 @@ def predict(model, scans):
     return Y
 
 def main(dicom_path):
-    X = get_scan(dicom_path)
+    X = get_scan(dicom_path, scan_size = (256, 256))
     if not os.path.exists(dicom_path):
         print('DICOM file not exists!')
         return None

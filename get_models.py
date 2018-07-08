@@ -41,7 +41,7 @@ def dice_coefficient(y_true, y_pred):
     return 2. * K.sum(flat_y_true * flat_y_pred) / (K.sum(flat_y_true) + K.sum(flat_y_pred))
 
 def dice_coefficient_loss(y_true, y_pred):
-    return - dice_coefficient(y_true, y_pred)
+    return 1 - dice_coefficient(y_true, y_pred)
 
 # Segment Model:
 def get_segment_model(data_shape):
@@ -121,7 +121,7 @@ def get_segment_model(data_shape):
     conv_block_9 = Activation('relu')(conv_block_9)
 
     conv_block_10 = Conv3D(data_shape[-1], (1, 1, 1), strides=(1, 1, 1), padding='same')(conv_block_9)
-    outputs = Activation('sigmoid')(conv_block_10)
+    outputs = Activation('hard_sigmoid')(conv_block_10)
 
     model = Model(inputs=inputs, outputs=outputs)
 

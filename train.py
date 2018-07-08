@@ -8,7 +8,8 @@ from keras.callbacks import ModelCheckpoint, TensorBoard
 epochs = 25
 batch_size = 2
 
-def train_model(model, X, X_test, Y, Y_test):
+# Training Segment Model:
+def train_seg_model(model, X, X_test, Y, Y_test):
     if not os.path.exists('Data/Checkpoints/'):
         os.makedirs('Data/Checkpoints/')
     checkpoints = []
@@ -19,18 +20,25 @@ def train_model(model, X, X_test, Y, Y_test):
 
     return model
 
-# TODO: Training GAN
+# Training GAN:
+def train_gan():
+    # TODO
+    pass
 
-def main():
+def main(select_model = 'Segment_Model'):
     X, X_test, Y, Y_test = read_npy_dataset('Data/npy_dataset', test_size=0.2)
-    segment_model, _ = get_segment_model(data_shape = (256, 256, 16, 1))
-    print(segment_model.summary())
-    save_model(segment_model, path='Data/Model/', model_name = 'model', weights_name = 'weights')
-    print('Non-Trained model saved to "Data/Model"!')
-    model = train_model(segment_model, X, X_test, Y, Y_test)
-    save_model(segment_model, path='Data/Model/', model_name = 'model', weights_name = 'weights')
-    print('Trained model saved to "Data/Model"!')
-    return segment_model
+    if select_model = 'Segment_Model':
+        segment_model, _ = get_segment_model(data_shape = (256, 256, 16, 1))
+        print(segment_model.summary())
+        save_model(segment_model, path='Data/Model/', model_name = 'model', weights_name = 'weights')
+        print('Non-Trained model saved to "Data/Model"!')
+        model = train_seg_model(segment_model, X, X_test, Y, Y_test)
+        save_model(segment_model, path='Data/Model/', model_name = 'model', weights_name = 'weights')
+        print('Trained model saved to "Data/Model"!')
+        return segment_model
+    else:
+        # TODO: Get Models, train_gan(), save model(s).
+        pass
 
 if __name__ == '__main__':
-    main()
+    main(select_model = 'Segment_Model')

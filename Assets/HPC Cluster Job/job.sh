@@ -1,10 +1,7 @@
 #!/bin/bash
-# 
-# CompecTA (c) 2017
-#
+## Arda Mavi
+# For Help: http://login.kuacc.ku.edu.tr
 # You should only work under the /scratch/users/<username> directory.
-#
-# Example job submission script
 #
 # TODO:
 #   - Set name of the job below changing "Test" value.
@@ -29,7 +26,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --partition=mid
 #SBATCH --time=24:00:00
-#SBATCH --mem=128000
+#SBATCH --mem=13GB
 #SBATCH --gres gpu:1
 #SBATCH --qos=ai
 #SBATCH --account=ai
@@ -38,12 +35,8 @@
 #SBATCH --mail-type=END
 #SBATCH --mail-user=ardamavi2@gmail.com
 
-################################################################################
-##################### !!! DO NOT EDIT BELOW THIS LINE !!! ######################
-################################################################################
-
-## Load Python 3.6.3
-echo "Activating Python 3.6.3..."
+## Load Python 3.6.6
+echo "Activating Python 3.6.6..."
 export PATH=/kuacc/users/lyo-amavi18/anaconda3/bin:$PATH
 
 echo ""
@@ -60,4 +53,3 @@ python train.py
 # Command 3 for matrix
 echo "Running compiled binary..."
 # Put compiled binary command below
-
