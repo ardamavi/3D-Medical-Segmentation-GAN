@@ -63,10 +63,10 @@ def save_seg_imgs(seg_imgs, save_path):
         imsave(save_path+'/SegImg_'+str(i)+'.png', seg_imgs[:,:,i])
     print('Segmentated images saved into the ' + save_path)
 
-def scan_pading(scan, seg_img, section_size = 16):
+def scan_pading(scan, seg_img, section_size):
     # For easly split:
     pad_size = section_size - (scan.shape[-1] % section_size)
-    if pad_size != 16:
+    if pad_size != section_size:
         padded_scan = np.pad(scan, ((0,0),(0,0),(0,pad_size)), 'constant')
         try:
             padded_seg_img = np.pad(seg_img, ((0,0),(0,0),(0,pad_size)), 'constant')
@@ -78,16 +78,16 @@ def scan_pading(scan, seg_img, section_size = 16):
     return padded_scan, padded_seg_img
 
 
-def split_scans_imgs(scans, seg_img, section_size = 16):
+def split_scans_imgs(scans, seg_img, section_size):
     # Split with sliding window:
 
     splitted_scans = []
-    for i in range(0, scans.shape[-1]-15):
-        splitted_scans.append(scans[:,:,i:i+16])
+    for i in range(0, scans.shape[-1]-(section_size-1)):
+        splitted_scans.append(scans[:,:,i:i+section_size])
 
     splitted_seg_img = []
-    for i in range(0, seg_img.shape[-1]-15):
-        splitted_seg_img.append(seg_img[:,:,i:i+16])
+    for i in range(0, seg_img.shape[-1]-(section_size-1)):
+        splitted_seg_img.append(seg_img[:,:,i:i+section_size])
 
     splitted_scans = np.array(splitted_scans)
     splitted_seg_img = np.array(splitted_seg_img)
@@ -105,8 +105,8 @@ def get_dataset(dataset_path, dicom_file = 'DICOM_anon', ground_file = 'Ground',
             scan = get_scan(sample_path+'/'+dicom_file, scan_size = section_size[0:2])
             seg_img = get_seg_img(sample_path+'/'+ground_file, img_size = section_size[0:2]+(1,))
 
-            scan, seg_img = scan_pading(scan, seg_img, section_size = 16)
-            scan, seg_img = split_scans_imgs(scan, seg_img, section_size = 16)
+            scan, seg_img = scan_pading(scan, seg_img, section_size = section_size[2])
+            scan, seg_img = split_scans_imgs(scan, seg_img, section_size = section_size[2])
 
             for one_scan in scan:
                 scans.append(one_scan)
@@ -136,6 +136,30 @@ def get_dataset(dataset_path, dicom_file = 'DICOM_anon', ground_file = 'Ground',
     print('Test Data Shape: ' + str(X_test.shape[0]))
     return X, X_test, Y, Y_test
 
+def split_npy_dataset(npy_dataset_path, split_npy_dataset_path, test_path, batch_size, test_size):
+    X = np.load(npy_dataset_path+'/scans.npy')
+    Y = np.load(npy_dataset_path+'/seg.npy')
+
+    if not os.path.exists(split_npy_dataset_path):
+        os.makedirs(split_npy_dataset_path)
+    if not os.path.exists(test_path):
+        os.makedirs(test_path)
+
+    X, X_test, Y, Y_test = train_test_split(X, Y, test_size=test_size, random_state=42)
+    test_npy = []
+    test_npy.append(X_test)
+    test_npy.append(Y_test)
+    test_npy = np.array(test_npy)
+    np.save(test_path+'/test.npy', test_npy)
+
+    for batch_i in range(0, Y.shape[0], batch_size):
+        batch_npy = []
+        batch_npy.append(X[batch_i:batch_i+batch_size])
+        batch_npy.append(Y[batch_i:batch_i+batch_size])
+        batch_npy = np.array(batch_npy)
+        np.save(split_npy_dataset_path+'/batch_{0}.npy'.format(batch_i), batch_npy)
+    print('Splitted NPY Dataset saved!')
+
 def read_npy_dataset(npy_dataset_path, test_size = 0.2):
     X = np.load(npy_dataset_path+'/scans.npy')
     Y = np.load(npy_dataset_path+'/seg.npy')
@@ -145,4 +169,10 @@ def read_npy_dataset(npy_dataset_path, test_size = 0.2):
     return X, X_test, Y, Y_test
 
 if __name__ == '__main__':
-    X, X_test, Y, Y_test = get_dataset(dataset_path = 'Data/Dataset', dicom_file = 'DICOM_anon', ground_file = 'Ground', section_size = (256, 256, 16), test_size = 0.2, save_npy = True, dataset_save_path = 'Data/npy_dataset')
+    dataset_path = 'Data/Dataset'
+    npy_dataset_path = 'Data/npy_dataset'
+    splitted_npy_dataset_path = npy_dataset_path+'/splitted_npy_dataset'
+    test_path = npy_dataset_path+'/test_npy'
+
+    X, X_test, Y, Y_test = get_dataset(dataset_path, dicom_file = 'DICOM_anon', ground_file = 'Ground', section_size = (256, 256, 16), test_size = 0.2, save_npy = True, dataset_save_path = npy_dataset_path)
+    split_npy_dataset(npy_dataset_path, splitted_npy_dataset_path, test_path, batch_size = 4, test_size = 0.2)

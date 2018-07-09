@@ -38,6 +38,8 @@
 ## Load Python 3.6.6
 echo "Activating Python 3.6.6..."
 export PATH=/kuacc/users/lyo-amavi18/anaconda3/bin:$PATH
+echo "Loading Module CUDNN..."
+module load cudnn
 
 echo ""
 echo "======================================================================================"
