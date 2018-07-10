@@ -174,5 +174,5 @@ if __name__ == '__main__':
     splitted_npy_dataset_path = npy_dataset_path+'/splitted_npy_dataset'
     test_path = npy_dataset_path+'/test_npy'
 
-    X, X_test, Y, Y_test = get_dataset(dataset_path, dicom_file = 'DICOM_anon', ground_file = 'Ground', section_size = (256, 256, 16), test_size = 0.2, save_npy = True, dataset_save_path = npy_dataset_path)
-    split_npy_dataset(npy_dataset_path, splitted_npy_dataset_path, test_path, batch_size = 4, test_size = 0.2)
+    X, X_test, Y, Y_test = get_dataset(dataset_path, dicom_file = 'DICOM_anon', ground_file = 'Ground', section_size = (256, 256, 32), test_size = 0.2, save_npy = True, dataset_save_path = npy_dataset_path)
+    split_npy_dataset(npy_dataset_path, splitted_npy_dataset_path, test_path, batch_size = 1, test_size = 0.2)

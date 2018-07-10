@@ -34,8 +34,8 @@
 ## Model:
 <img src="Assets/Model.png" width="600">
 
-`Input Shape: n x 512 x 512 x 16`<br/>
-`Output Shape: n x 512 x 512 x 16`
+`Input Shape: n x 512 x 512 x 32`<br/>
+`Output Shape: n x 512 x 512 x 32`
 
 # Important Notes
 - Used Python 3.6.0 with Anaconda
