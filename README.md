@@ -1,4 +1,4 @@
-# 3D-Medical-Segmentation-GAN
+# 3D Medical Segmentation GAN
 
 |Arda Mavi|Deniz Yuret|
 |:-:|:-:|
@@ -8,7 +8,7 @@
 
 #### This project created under `Koç University Summer Research Program`
 
-### ! Project, README Documentation and Article are under construction!
+### ! Project and Documentations are under construction!
 
 # Contents:
 [For Users](#for-users)
@@ -34,8 +34,8 @@
 ## Model:
 <img src="Assets/Model.png" width="600">
 
-`Input Shape: n x 512 x 512 x 32`<br/>
-`Output Shape: n x 512 x 512 x 32`
+`Input Shape: n x 256 x 256 x 32`<br/>
+`Output Shape: n x 256 x 256 x 32`
 
 # Important Notes
 - Used Python 3.6.0 with Anaconda

@@ -13,7 +13,7 @@ epochs = 25
 test_size = 0.2
 
 # Training Segment Model:
-def train_seg_model(model, splitted_npy_dataset_path='Data/npy_dataset/splitted_npy_dataset', test_path = 'Data/npy_dataset/test_npy'):
+def train_seg_model(model, splitted_npy_dataset_path='Data/npy_dataset/splitted_npy_dataset', test_path = 'Data/npy_dataset/test_npy', epochs):
     if not os.path.exists('Data/Checkpoints/'):
         os.makedirs('Data/Checkpoints/')
     # checkpoints = []
@@ -30,26 +30,44 @@ def train_seg_model(model, splitted_npy_dataset_path='Data/npy_dataset/splitted_
             X_batch, Y_batch = batch_XY[0], batch_XY[1]
             # model.fit(X_batch, Y_batch, batch_size=batch_size, epochs=1, callbacks=checkpoints)
             model.train_on_batch(X_batch, Y_batch)
-        scores = model.evaluate(X_test, Y_test)
+        scores = model.evaluate(X_test, Y_test) # TODO: Optimize memory ueses!
         print('Test loss:', scores[0], 'Test accuracy:', scores[1])
         model.save_weights('Data/Checkpoints/last_weights.h5')
     return model
 
 # Training GAN:
-def train_gan():
+def train_gan(Generator, Encoder, Discriminator, GAN, splitted_npy_dataset_path='Data/npy_dataset/splitted_npy_dataset', test_path = 'Data/npy_dataset/test_npy', epochs):
     # TODO
-    pass
+    return Generator, Encoder, Discriminator
 
 def main(train_gan_model = 1):
     if train_gan_model:
-        # TODO: Get Models, train_gan(), save model(s).
-        pass
+        # Getting Generator:
+        Generator, Encoder = get_segment_model(data_shape = (256, 256, 32, 1))
+        Discriminator = get_Discriminator(input_shape_1 = (16,16,2,256), input_shape_2 = (256, 256, 32, 1))
+        GAN = get_GAN((16,16,2,256), (256, 256, 32, 1), Generator, Discriminator)
+
+        # Saving non-trained models:
+        save_model(Generator, path='Data/GAN-Models/Generator', model_name = 'model', weights_name = 'weights')
+        save_model(Encoder, path='Data/GAN-Models/Encoder', model_name = 'model', weights_name = 'weights')
+        save_model(Discriminator, path='Data/GAN-Models/Discriminator', model_name = 'model', weights_name = 'weights')
+        print('Non-Trained model saved to "Data/GAN-Models"!')
+
+        # Train:
+        Generator, Encoder, Discriminator = train_gan(Generator, Encoder, Discriminator, GAN, splitted_npy_dataset_path='Data/npy_dataset/splitted_npy_dataset', test_path = 'Data/npy_dataset/test_npy', epochs = 100)
+
+        # Saving trained models:
+        save_model(Generator, path='Data/GAN-Models/Generator', model_name = 'model', weights_name = 'weights')
+        save_model(Encoder, path='Data/GAN-Models/Encoder', model_name = 'model', weights_name = 'weights')
+        save_model(Discriminator, path='Data/GAN-Models/Discriminator', model_name = 'model', weights_name = 'weights')
+        print('Trained model saved to "Data/GAN-Models"!')
+        return Generator
     else:
         segment_model, _ = get_segment_model(data_shape = (256, 256, 32, 1))
         print(segment_model.summary())
         save_model(segment_model, path='Data/Model/', model_name = 'model', weights_name = 'weights')
         print('Non-Trained model saved to "Data/Model"!')
-        model = train_seg_model(segment_model, splitted_npy_dataset_path='Data/npy_dataset/splitted_npy_dataset', test_path = 'Data/npy_dataset/test_npy')
+        model = train_seg_model(segment_model, splitted_npy_dataset_path='Data/npy_dataset/splitted_npy_dataset', test_path = 'Data/npy_dataset/test_npy', epochs = 25)
         save_model(segment_model, path='Data/Model/', model_name = 'model', weights_name = 'weights')
         print('Trained model saved to "Data/Model"!')
         return segment_model
