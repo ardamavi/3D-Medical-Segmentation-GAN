@@ -3,6 +3,7 @@
 import os
 from keras.models import Model
 from keras import backend as K
+from keras.optimizers import Adadelta
 from keras.utils import multi_gpu_model
 from keras.models import model_from_json
 from keras.layers import Input, Conv3D, Dense, UpSampling3D, Activation, MaxPooling3D, Dropout, concatenate, Flatten
@@ -48,9 +49,9 @@ def get_segment_model(data_shape):
     # U-Net:
     inputs = Input(shape=(data_shape))
 
-    conv_block_1 = Conv3D(32, (3, 3, 3), strides=(1, 1, 1), padding='same')(inputs)
+    conv_block_1 = Conv3D(64, (3, 3, 3), strides=(1, 1, 1), padding='same')(inputs)
     conv_block_1 = Activation('relu')(conv_block_1)
-    conv_block_1 = Conv3D(32, (3, 3, 3), strides=(1, 1, 1), padding='same')(conv_block_1)
+    conv_block_1 = Conv3D(64, (3, 3, 3), strides=(1, 1, 1), padding='same')(conv_block_1)
     conv_block_1 = Activation('relu')(conv_block_1)
     pool_block_1 = MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2))(conv_block_1)
 
@@ -121,7 +122,7 @@ def get_segment_model(data_shape):
     conv_block_9 = Activation('relu')(conv_block_9)
 
     conv_block_10 = Conv3D(data_shape[-1], (1, 1, 1), strides=(1, 1, 1), padding='same')(conv_block_9)
-    outputs = Activation('hard_sigmoid')(conv_block_10)
+    outputs = Activation('sigmoid')(conv_block_10)
 
     model = Model(inputs=inputs, outputs=outputs)
 
@@ -134,7 +135,7 @@ def get_segment_model(data_shape):
         pass
     """
 
-    model.compile(optimizer = 'adadelta', loss=dice_coefficient_loss, metrics=[dice_coefficient])
+    model.compile(optimizer = Adadelta(lr=0.001), loss=dice_coefficient_loss, metrics=[dice_coefficient])
 
     return model, encoder
 

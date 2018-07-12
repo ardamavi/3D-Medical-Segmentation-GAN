@@ -6,39 +6,46 @@ from os import listdir
 from random import shuffle
 from get_dataset import read_npy_dataset, split_npy_dataset
 from get_models import get_segment_model, save_model
-# from keras.callbacks import ModelCheckpoint, TensorBoard
+from keras.callbacks import ModelCheckpoint, TensorBoard
 
 epochs = 25
-# batch_size = 1
+batch_size = 1
 test_size = 0.2
 
 # Training Segment Model:
-def train_seg_model(model, splitted_npy_dataset_path='Data/npy_dataset/splitted_npy_dataset', test_path = 'Data/npy_dataset/test_npy', epochs):
-    if not os.path.exists('Data/Checkpoints/'):
-        os.makedirs('Data/Checkpoints/')
-    # checkpoints = []
-    # checkpoints.append(TensorBoard(log_dir='Data/Checkpoints/./logs', histogram_freq=0, write_graph=True, write_images=False, embeddings_freq=0, embeddings_layer_names=None, embeddings_metadata=None))
-
+def train_seg_model(model, splitted_npy_dataset_path, test_path, epochs):
     test_XY = np.load(test_path+'/test.npy')
     X_test, Y_test = test_XY[0], test_XY[1]
+
     batch_dirs = listdir(splitted_npy_dataset_path)
+    len_batch_dirs = len(batch_dirs)
+
+    if not os.path.exists('Data/Checkpoints/'):
+        os.makedirs('Data/Checkpoints/')
+    checkpoints = []
+    checkpoints.append(ModelCheckpoint('Data/Checkpoints/best_weights.h5', monitor='val_loss', verbose=0, save_best_only=True, save_weights_only=True, mode='auto', period=1))
+    checkpoints.append(TensorBoard(log_dir='Data/Checkpoints/./logs', histogram_freq=0, write_graph=True, write_images=False, embeddings_freq=0, embeddings_layer_names=None, embeddings_metadata=None))
+
     for epoch in range(epochs):
         print('Epoch: {0}/{1}'.format(epoch+1, epochs))
+        scores = model.fit_generator(data_gen(splitted_npy_dataset_path), steps_per_epoch=batch_size, epochs=len_batch_dirs, callbacks=checkpoints)
+        # scores = model.evaluate(X_test, Y_test) # TODO: Optimize memory ueses!
+        # print('Test loss:', scores[0], 'Test accuracy:', scores[1])
+    return model
+
+# Training GAN:
+def train_gan(Generator, Encoder, Discriminator, GAN, splitted_npy_dataset_path, test_path, epochs):
+    # TODO
+    return Generator, Encoder, Discriminator
+
+def data_gen(splitted_npy_dataset_path):
+    batch_dirs = listdir(splitted_npy_dataset_path)
+    while True:
         shuffle(batch_dirs)
         for batch_path in batch_dirs:
             batch_XY = np.load(splitted_npy_dataset_path+'/'+batch_path)
             X_batch, Y_batch = batch_XY[0], batch_XY[1]
-            # model.fit(X_batch, Y_batch, batch_size=batch_size, epochs=1, callbacks=checkpoints)
-            model.train_on_batch(X_batch, Y_batch)
-        scores = model.evaluate(X_test, Y_test) # TODO: Optimize memory ueses!
-        print('Test loss:', scores[0], 'Test accuracy:', scores[1])
-        model.save_weights('Data/Checkpoints/last_weights.h5')
-    return model
-
-# Training GAN:
-def train_gan(Generator, Encoder, Discriminator, GAN, splitted_npy_dataset_path='Data/npy_dataset/splitted_npy_dataset', test_path = 'Data/npy_dataset/test_npy', epochs):
-    # TODO
-    return Generator, Encoder, Discriminator
+            yield X_batch, Y_batch
 
 def main(train_gan_model = 1):
     if train_gan_model:
