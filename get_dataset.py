@@ -115,7 +115,7 @@ def get_dataset(dataset_path, dicom_file = 'DICOM_anon', ground_file = 'Ground',
 
     scans = np.array(scans, dtype='float32')
 
-    scans = (scans-np.min(scans))/(np.max(scans)-np.min(scans)) # Normalization
+    scans = (scans-np.min(scans))/(np.max(scans)-np.min(scans)) # Normalization ### TODO: DICOM Liver Normalization
     seg_imgs = np.array(seg_imgs).astype('float32')/255
 
     scans = scans.reshape((scans.shape[0],)+section_size+(1,))

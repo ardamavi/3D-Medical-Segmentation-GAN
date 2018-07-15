@@ -40,3 +40,9 @@
 # Important Notes
 - Used Python 3.6.0 with Anaconda
 - Install necessary modules with `sudo pip3 install -r requirements.txt` command.
+- Load CUDNN(used `cudnn/7.0.5/cuda-9.0` for this project) module before training.
+
+
+# To-Do List:
+- [ ] Normalization of DICOM Liver datas.
+- [ ] Optimize memory uses in test process.

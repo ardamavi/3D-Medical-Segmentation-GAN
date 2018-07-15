@@ -1,5 +1,6 @@
 #!/bin/bash
 ## Arda Mavi
+## Interactive Session: srun --x11=all -n1 -p short --gres=gpu:n --qos=users --pty $SHELL
 # For Help: http://login.kuacc.ku.edu.tr
 # You should only work under the /scratch/users/<username> directory.
 #
@@ -23,11 +24,11 @@
 #
 #SBATCH --job-name=3D-Seg
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
+#SBATCH --ntasks-per-node=4
 #SBATCH --partition=mid
 #SBATCH --time=24:00:00
-#SBATCH --mem=13GB
-#SBATCH --gres gpu:1
+#SBATCH --mem=8000
+#SBATCH --gres=gpu:1
 #SBATCH --qos=ai
 #SBATCH --account=ai
 #SBATCH --partition=ai
@@ -38,8 +39,6 @@
 ## Load Python 3.6.6
 echo "Activating Python 3.6.6..."
 export PATH=/kuacc/users/lyo-amavi18/anaconda3/bin:$PATH
-echo "Loading Module CUDNN..."
-module load cudnn
 
 echo ""
 echo "======================================================================================"
