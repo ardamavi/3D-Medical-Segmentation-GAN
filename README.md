@@ -8,34 +8,41 @@
 
 #### This project created under `Koç University Summer Research Program`
 
-### ! Project and Documentations are under construction!
-
-# Contents:
-[For Users](#for-users)
-- [Running](#running)
-
-[For Developers](#for-developers)
-- [Model](#model)
-
-! [Important Notes](#important-notes)
-
-# For Users
-
-## Running:
-
-### Processing Dataset Command:
-`python3 get_dataset.py`
-
-### Model Training:
-`python3 train.py`
-
-# For Developers
-
-## Model:
+## Architecture:
 <img src="Assets/Model.png" width="600">
 
 `Input Shape: n x 256 x 256 x 32`<br/>
 `Output Shape: n x 256 x 256 x 32`
+
+In this project we purpose to segmentation medical scans without unsuccessful loss functions in segmentation area like `Mean Squared Error` (not useful for segmentation) or `Dice Coefficient` (using for area comparison but not useful for gradient descent optimization function) and for benefit the best use of `GAN` algorithmic logic.
+
+### ! Project and Documentations are under construction!
+
+# Contents:
+[For Users](#for-users)
+- [Segmentation Scans](#segmentation-scans)
+
+[For Developers](#for-developers)
+- [Processing Dataset](#processing-dataset-command)
+- [Model Training](#model-training)
+
+! [Important Notes](#important-notes)
+
+[To-Do List](#to-do-list)
+
+# For Users
+
+### Segmentation Scans:
+`python3 predict.py <Scan_files_path>`
+
+
+# For Developers
+
+### Processing Dataset:
+`python3 get_dataset.py`
+
+### Model Training:
+`python3 train.py`
 
 # Important Notes
 - Used Python 3.6.0 with Anaconda
