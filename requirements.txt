@@ -1,7 +1,7 @@
 numpy
 scikit-learn
 scikit-image
-tensorflow
+tensorflow-gpu
 keras
 h5py
 pydicom

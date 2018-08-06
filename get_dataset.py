@@ -93,7 +93,7 @@ def split_scans_imgs(scans, seg_img, section_size):
     splitted_seg_img = np.array(splitted_seg_img)
     return splitted_scans, splitted_seg_img
 
-def get_dataset(dataset_path, dicom_file = 'DICOM_anon', ground_file = 'Ground', section_size = (256, 256, 16), test_size = 0.2, save_npy = True, dataset_save_path = 'Data/npy_dataset'):
+def get_dataset(dataset_path, dicom_file = 'DICOM_anon', ground_file = 'Ground', section_size = (128, 128, 128), test_size = 0.2, save_npy = True, dataset_save_path = 'Data/npy_dataset'):
     # Create dateset:
 
     scans, seg_imgs = [], []
@@ -174,5 +174,5 @@ if __name__ == '__main__':
     splitted_npy_dataset_path = npy_dataset_path+'/splitted_npy_dataset'
     test_path = npy_dataset_path+'/test_npy'
 
-    X, X_test, Y, Y_test = get_dataset(dataset_path, dicom_file = 'DICOM_anon', ground_file = 'Ground', section_size = (256, 256, 32), test_size = 0.2, save_npy = True, dataset_save_path = npy_dataset_path)
+    X, X_test, Y, Y_test = get_dataset(dataset_path, dicom_file = 'DICOM_anon', ground_file = 'Ground', section_size = (128, 128, 128), test_size = 0.2, save_npy = True, dataset_save_path = npy_dataset_path)
     split_npy_dataset(npy_dataset_path, splitted_npy_dataset_path, test_path, batch_size = 1, test_size = 0.2)

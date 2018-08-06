@@ -11,8 +11,8 @@
 ## Architecture:
 <img src="Assets/Model.png" width="600">
 
-`Input Shape: n x 256 x 256 x 32`<br/>
-`Output Shape: n x 256 x 256 x 32`
+`Input Shape: n x 128 x 128 x 128`<br/>
+`Output Shape: n x 128 x 128 x 128`
 
 In this project we purpose to segmentation medical scans without unsuccessful loss functions in segmentation area like `Mean Squared Error` (not useful for segmentation) or `Dice Coefficient` (using for area comparison but not useful for gradient descent optimization function) and for benefit the best use of `GAN` algorithmic logic.
 

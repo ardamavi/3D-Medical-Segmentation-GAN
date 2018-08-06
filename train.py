@@ -23,7 +23,7 @@ def train_seg_model(model, splitted_npy_dataset_path, test_path, epochs):
     if not os.path.exists('Data/Checkpoints/'):
         os.makedirs('Data/Checkpoints/')
     checkpoints = []
-    checkpoints.append(ModelCheckpoint('Data/Checkpoints/best_weights.h5', monitor='val_loss', verbose=0, save_best_only=True, save_weights_only=True, mode='auto', period=1))
+    checkpoints.append(ModelCheckpoint('Data/Checkpoints/best_weights.h5', monitor='val_loss', verbose=0, save_best_only=False, save_weights_only=True, mode='auto', period=1))
     checkpoints.append(TensorBoard(log_dir='Data/Checkpoints/./logs', histogram_freq=0, write_graph=True, write_images=False, embeddings_freq=0, embeddings_layer_names=None, embeddings_metadata=None))
 
     for epoch in range(epochs):
@@ -105,9 +105,9 @@ def data_gen(splitted_npy_dataset_path):
 def main(train_gan_model = True):
     if train_gan_model:
         # Getting Generator:
-        Generator, Encoder = get_segment_model(data_shape = (256, 256, 32, 1))
-        Discriminator = get_Discriminator(input_shape_1 = (256,256,32,1), input_shape_2 = (256, 256, 32, 1), Encoder = Encoder)
-        GAN = get_GAN((256, 256, 32, 1), Generator, Discriminator)
+        Generator, Encoder = get_segment_model(data_shape = (128, 128, 128, 1))
+        Discriminator = get_Discriminator(input_shape_1 = (128,128,128,1), input_shape_2 = (128, 128, 128, 1), Encoder = Encoder)
+        GAN = get_GAN((128, 128, 128, 1), Generator, Discriminator)
 
         # Saving non-trained models:
         save_model(Generator, path='Data/GAN-Models/Generator/', model_name = 'model', weights_name = 'weights')
@@ -125,7 +125,7 @@ def main(train_gan_model = True):
         print('Trained model saved to "Data/GAN-Models"!')
         return Generator
     else:
-        segment_model, _ = get_segment_model(data_shape = (256, 256, 32, 1))
+        segment_model, _ = get_segment_model(data_shape = (128, 128, 128, 1))
         print(segment_model.summary())
         save_model(segment_model, path='Data/Model/', model_name = 'model', weights_name = 'weights')
         print('Non-Trained model saved to "Data/Model"!')
@@ -135,4 +135,4 @@ def main(train_gan_model = True):
         return segment_model
 
 if __name__ == '__main__':
-    main(train_gan_model = True)
+    main(train_gan_model = False)

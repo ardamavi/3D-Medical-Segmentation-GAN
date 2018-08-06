@@ -10,14 +10,14 @@ def predict(model, scans):
 
     section_size = scans.shape[-1]
 
-    X, _ = scan_pading(scans, None, section_size = 32)
+    X, _ = scan_pading(scans, None, section_size = 128)
 
     pad_size = X.shape[-1]-section_size
 
     # For splitting:
     splitted_scans = []
-    for i in range(0, X.shape[-1]-31, 32):
-        splitted_scans.append(X[:,:,i:i+32])
+    for i in range(0, X.shape[-1]-127, 128):
+        splitted_scans.append(X[:,:,i:i+120])
     X = np.array(splitted_scans, dtype='float32')
 
     X = ((X-np.min(X))/(np.max(X)-np.min(X))).reshape(X.shape+(1,)) # TODO: DICOM Liver Normalization
@@ -41,7 +41,7 @@ def main(dicom_path):
     if not os.path.exists(dicom_path):
         print('DICOM file not exists!')
         return None
-    X = get_scan(dicom_path, scan_size = (256, 256))
+    X = get_scan(dicom_path, scan_size = (128, 128))
 
     # Getting model:
     with open('Data/GAN-Models/Generator/model.json', 'r') as model_file:

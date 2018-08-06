@@ -1,8 +1,10 @@
 #!/bin/bash
-## Arda Mavi
-## Interactive Session: srun --x11=all -n1 -p short --gres=gpu:n --qos=users --pty $SHELL
-# For Help: http://login.kuacc.ku.edu.tr
+#
+# Arda Mavi
+#
 # You should only work under the /scratch/users/<username> directory.
+#
+# Example job submission script
 #
 # TODO:
 #   - Set name of the job below changing "Test" value.
@@ -22,35 +24,17 @@
 
 # -= Resources =-
 #
-#SBATCH --job-name=3D-Seg
+#SBATCH --job-name=3DSeg
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=4
-#SBATCH --partition=mid
-#SBATCH --time=24:00:00
-#SBATCH --mem=8000
+#SBATCH --ntasks-per-node=1
 #SBATCH --gres=gpu:1
+#SBATCH --time=24:00:00
+#SBATCH --partition=ai
 #SBATCH --qos=ai
 #SBATCH --account=ai
-#SBATCH --partition=ai
-#SBATCH --output=outputs.out
+#SBATCH --output=output.out
 #SBATCH --mail-type=END
 #SBATCH --mail-user=ardamavi2@gmail.com
 
-## Load Python 3.6.6
-echo "Activating Python 3.6.6..."
-export PATH=/kuacc/users/lyo-amavi18/anaconda3/bin:$PATH
-
-echo ""
-echo "======================================================================================"
-
-echo "Running Example Job...!"
-echo "==============================================================================="
-# Command 1 for matrix
-echo "Running Python script..."
-# Put Python script command below
+echo "Running Job"
 python train.py
-# Command 2 for matrix
-
-# Command 3 for matrix
-echo "Running compiled binary..."
-# Put compiled binary command below

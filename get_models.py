@@ -198,7 +198,7 @@ def get_Discriminator(input_shape_1, input_shape_2, Encoder):
     return Discriminator
 
 if __name__ == '__main__':
-    segment_model, encoder = get_segment_model((256,256,32,1))
-    generator = get_Generator((256,256,32,1))
-    discriminator = get_Discriminator((256,256,32,1), (256,256,32,1), encoder)
-    gan = get_GAN((256,256,32,1), generator, discriminator)
+    segment_model, encoder = get_segment_model((128,128,128,1))
+    generator = get_Generator((128,128,128,1))
+    discriminator = get_Discriminator((128,128,128,1), (128,128,128,1), encoder)
+    gan = get_GAN((128,128,128,1), generator, discriminator)
