@@ -51,6 +51,7 @@ def train_gan(Generator, Encoder, Discriminator, GAN, splitted_npy_dataset_path,
     for epoch in range(epochs):
         print('Epoch: {0}/{1}'.format(epoch+1, epochs))
 
+        print('Discriminator Training:')
         # Discriminator Training:
         for i in range(int(batch_num/4)):
             # Getting generated data:
@@ -70,10 +71,11 @@ def train_gan(Generator, Encoder, Discriminator, GAN, splitted_npy_dataset_path,
             Discriminator.trainable = True
             Discriminator.fit([dis_batch_X1, dis_batch_X2], dis_batch_Y, batch_size=1, epochs=1, shuffle=True)
 
+        print('Generator Training:')
         # Generator Training:
-        for i in range(int(sample_num/2)):
+        for i in range(int(batch_num/2)):
             # Getting generated data:
-            getted_generator_data = next(generator)
+            getted_generator_data = next(data_generator)
 
             # Getting batch:
             # Xs:
@@ -86,10 +88,10 @@ def train_gan(Generator, Encoder, Discriminator, GAN, splitted_npy_dataset_path,
             GAN.fit(gan_batch_X, gan_batch_Y, batch_size=1, epochs=1, shuffle=True)
 
         # TODO: Optimize memory uses:
-        """
         scores = Generator.evaluate(X_test, Y_test)
         print('Test loss:', scores[0], 'Test accuracy:', scores[1])
-        """
+        save_model(Generator, path='Data/Checkpoints/GAN-Models/Generator/', model_name = 'model', weights_name = 'weights')
+        print('Segmentation model checkpoints saved to "Data/Chackpoints/GAN-Models/Generator/"')
 
     return Generator, Encoder, Discriminator
 
@@ -135,4 +137,4 @@ def main(train_gan_model = True):
         return segment_model
 
 if __name__ == '__main__':
-    main(train_gan_model = False)
+    main(train_gan_model = True)

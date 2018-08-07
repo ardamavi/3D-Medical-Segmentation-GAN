@@ -17,7 +17,7 @@ def predict(model, scans):
     # For splitting:
     splitted_scans = []
     for i in range(0, X.shape[-1]-127, 128):
-        splitted_scans.append(X[:,:,i:i+120])
+        splitted_scans.append(X[:,:,i:i+128])
     X = np.array(splitted_scans, dtype='float32')
 
     X = ((X-np.min(X))/(np.max(X)-np.min(X))).reshape(X.shape+(1,)) # TODO: DICOM Liver Normalization

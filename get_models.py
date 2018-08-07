@@ -6,7 +6,7 @@ from keras import backend as K
 from keras.optimizers import Adadelta
 from keras.utils import multi_gpu_model
 from keras.models import model_from_json
-from keras.layers import Input, Conv3D, Dense, UpSampling3D, Activation, MaxPooling3D, Dropout, concatenate, Flatten
+from keras.layers import Input, Conv3D, Dense, UpSampling3D, Activation, MaxPooling3D, Dropout, concatenate, Flatten, Multiply
 
 def save_model(model, path='Data/Model/', model_name = 'model', weights_name = 'weights'):
     if not os.path.exists(path):
@@ -37,9 +37,10 @@ def get_model(model_path, weights_path):
 
 # Loss Function:
 def dice_coefficient(y_true, y_pred):
+    smoothing_factor = 1
     flat_y_true = K.flatten(y_true)
     flat_y_pred = K.flatten(y_pred)
-    return 2. * K.sum(flat_y_true * flat_y_pred) / (K.sum(flat_y_true) + K.sum(flat_y_pred))
+    return (2. * K.sum(flat_y_true * flat_y_pred) + smoothing_factor) / (K.sum(flat_y_true) + K.sum(flat_y_pred) + smoothing_factor)
 
 def dice_coefficient_loss(y_true, y_pred):
     return 1 - dice_coefficient(y_true, y_pred)
@@ -134,7 +135,10 @@ def get_segment_model(data_shape):
         pass
     """
 
-    model.compile(optimizer = Adadelta(lr=0.001), loss=dice_coefficient_loss, metrics=[dice_coefficient])
+    model.compile(optimizer = Adadelta(lr=0.0001), loss='mse', metrics=['acc'])
+
+    print('Segment Model Architecture:')
+    print(model.summary())
 
     return model, encoder
 
@@ -146,7 +150,7 @@ def get_GAN(input_shape, Generator, Discriminator):
 
     # Compile GAN:
     gan = Model(input_gan, gan_output)
-    gan.compile(optimizer='adadelta', loss='mse', metrics=['accuracy'])
+    gan.compile(optimizer=Adadelta(lr=0.0001), loss='mse', metrics=['accuracy'])
 
     print('GAN Architecture:')
     print(gan.summary())
@@ -160,17 +164,27 @@ def get_Generator(input_shape):
 
 def get_Discriminator(input_shape_1, input_shape_2, Encoder):
 
-    dis_inputs_1 = Input(shape=input_shape_1) # From Segment Model
+    dis_inputs_1 = Input(shape=input_shape_1) # For Encoder Model
     dis_inputs_2 = Input(shape=input_shape_2) # From Segmentated Image
 
-    encoder_output = Encoder(dis_inputs_1)
+    encoder_output_1 = Encoder(dis_inputs_1)
 
-    flat_1 = Flatten()(encoder_output)
-    flat_2 = Flatten()(dis_inputs_2)
+    mul_1 = Multiply()([dis_inputs_1, dis_inputs_2])
 
-    merge_dis = concatenate([flat_1, flat_2])
+    encoder_output_2 = Encoder(mul_1)
 
-    dis_fc_1 = Dense(512)(merge_dis)
+    merge_dis = concatenate([encoder_output_1, encoder_output_2])
+
+    dis_conv_block = Conv3D(128, (3, 3, 3), strides=(1, 1, 1), padding='same')(merge_dis)
+    dis_conv_block = Activation('relu')(dis_conv_block)
+    dis_conv_block = Conv3D(128, (3, 3, 3), strides=(1, 1, 1), padding='same')(dis_conv_block)
+    dis_conv_block = Activation('relu')(dis_conv_block)
+    dis_conv_block = Conv3D(64, (3, 3, 3), strides=(1, 1, 1), padding='same')(dis_conv_block)
+    dis_conv_block = Activation('relu')(dis_conv_block)
+
+    flat_1 = Flatten()(dis_conv_block)
+
+    dis_fc_1 = Dense(512)(flat_1)
     dis_fc_1 = Activation('relu')(dis_fc_1)
     dis_fc_1 = Dense(512)(dis_fc_1)
     dis_fc_1 = Activation('relu')(dis_fc_1)
@@ -191,7 +205,7 @@ def get_Discriminator(input_shape_1, input_shape_2, Encoder):
     dis_similarity_output = Activation('sigmoid')(dis_fc_4)
 
     Discriminator = Model(inputs=[dis_inputs_1, dis_inputs_2], outputs=dis_similarity_output)
-    Discriminator.compile(optimizer='adadelta', loss='mse', metrics=['accuracy'])
+    Discriminator.compile(optimizer=Adadelta(lr=0.0001), loss='mse', metrics=['accuracy'])
 
     print('Discriminator Architecture:')
     print(Discriminator.summary())
