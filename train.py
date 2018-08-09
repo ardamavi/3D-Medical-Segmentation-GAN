@@ -5,8 +5,8 @@ import numpy as np
 from os import listdir
 from random import shuffle
 from get_dataset import read_npy_dataset, split_npy_dataset
-from get_models import get_segment_model, get_Discriminator, get_GAN, get_Generator, save_model
 from keras.callbacks import ModelCheckpoint, TensorBoard
+from get_models import get_segment_model, get_Discriminator, get_GAN, get_Generator, save_model, dice_coefficient
 
 epochs = 25
 batch_size = 4
@@ -30,11 +30,9 @@ def train_seg_model(model, splitted_npy_dataset_path, test_path, epochs):
         print('Epoch: {0}/{1}'.format(epoch+1, epochs))
         model.fit_generator(data_gen(splitted_npy_dataset_path), steps_per_epoch=batch_size, epochs=int(len_batch_dirs/batch_size), callbacks=checkpoints)
 
-        # TODO: Optimize memory uses:
-        """
         scores = model.evaluate(X_test, Y_test)
-        print('Test loss:', scores[0], 'Test accuracy:', scores[1])
-        """
+        dice_score = dice_coefficient(X_test, Y_test)
+        print('Test loss:', scores[0], 'Test accuracy:', scores[1], 'Dice Coefficient Accuracy:', dice_score)
     return model
 
 # Training GAN:
@@ -87,9 +85,9 @@ def train_gan(Generator, Encoder, Discriminator, GAN, splitted_npy_dataset_path,
             Encoder.trainable = True
             GAN.fit(gan_batch_X, gan_batch_Y, batch_size=1, epochs=1, shuffle=True)
 
-        # TODO: Optimize memory uses:
         scores = Generator.evaluate(X_test, Y_test)
-        print('Test loss:', scores[0], 'Test accuracy:', scores[1])
+        dice_score = dice_coefficient(X_test, Y_test)
+        print('Test Loss:', scores[0], 'Test Accuracy:', scores[1], 'Dice Coefficient Accuracy:', dice_score)
         save_model(Generator, path='Data/Checkpoints/GAN-Models/Generator/', model_name = 'model', weights_name = 'weights')
         print('Segmentation model checkpoints saved to "Data/Chackpoints/GAN-Models/Generator/"')
 
@@ -128,7 +126,6 @@ def main(train_gan_model = True):
         return Generator
     else:
         segment_model, _ = get_segment_model(data_shape = (128, 128, 128, 1))
-        print(segment_model.summary())
         save_model(segment_model, path='Data/Model/', model_name = 'model', weights_name = 'weights')
         print('Non-Trained model saved to "Data/Model"!')
         model = train_seg_model(segment_model, splitted_npy_dataset_path='Data/npy_dataset/splitted_npy_dataset', test_path = 'Data/npy_dataset/test_npy', epochs = 25)

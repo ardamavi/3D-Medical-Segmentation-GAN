@@ -179,6 +179,15 @@ def get_Discriminator(input_shape_1, input_shape_2, Encoder):
     dis_conv_block = Activation('relu')(dis_conv_block)
     dis_conv_block = Conv3D(128, (3, 3, 3), strides=(1, 1, 1), padding='same')(dis_conv_block)
     dis_conv_block = Activation('relu')(dis_conv_block)
+    dis_conv_block = MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2))(dis_conv_block)
+
+    dis_conv_block = Conv3D(128, (3, 3, 3), strides=(1, 1, 1), padding='same')(dis_conv_block)
+    dis_conv_block = Activation('relu')(dis_conv_block)
+    dis_conv_block = Conv3D(128, (3, 3, 3), strides=(1, 1, 1), padding='same')(dis_conv_block)
+    dis_conv_block = Activation('relu')(dis_conv_block)
+
+    dis_conv_block = Conv3D(64, (3, 3, 3), strides=(1, 1, 1), padding='same')(dis_conv_block)
+    dis_conv_block = Activation('relu')(dis_conv_block)
     dis_conv_block = Conv3D(64, (3, 3, 3), strides=(1, 1, 1), padding='same')(dis_conv_block)
     dis_conv_block = Activation('relu')(dis_conv_block)
 
