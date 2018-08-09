@@ -6,7 +6,7 @@ from os import listdir
 from random import shuffle
 from get_dataset import read_npy_dataset, split_npy_dataset
 from keras.callbacks import ModelCheckpoint, TensorBoard
-from get_models import get_segment_model, get_Discriminator, get_GAN, get_Generator, save_model, dice_coefficient
+from get_models import get_segment_model, get_Discriminator, get_GAN, get_Generator, save_model
 
 epochs = 25
 batch_size = 4
@@ -34,6 +34,13 @@ def train_seg_model(model, splitted_npy_dataset_path, test_path, epochs):
         dice_score = dice_coefficient(X_test, Y_test)
         print('Test loss:', scores[0], 'Test accuracy:', scores[1], 'Dice Coefficient Accuracy:', dice_score)
     return model
+
+# Dice Coefficient Loss Function
+def dice_coefficient(y_true, y_pred):
+    smoothing_factor = 1
+    flat_y_true = y_true.flatten()
+    flat_y_pred = y_pred.flatten()
+    return (2. * np.sum(flat_y_true * flat_y_pred) + smoothing_factor) / (np.sum(flat_y_true) + np.sum(flat_y_pred) + smoothing_factor)
 
 # Training GAN:
 def train_gan(Generator, Encoder, Discriminator, GAN, splitted_npy_dataset_path, test_path, epochs):
