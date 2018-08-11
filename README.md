@@ -18,6 +18,10 @@ In this project we purpose to segmentation medical scans without unsuccessful lo
 
 ### ! Project and Documentations are under construction!
 
+### New dataset expected...
+For your dataset support: [Arda Mavi e-Mail](mailto:ardamavi2@gmail.com)
+#### Currently Used Dataset: [DEU Liver Segmentation Dataset](https://eee.deu.edu.tr/moodle/mod/page/view.php?id=7872)
+
 # Contents:
 [For Users](#for-users)
 - [Segmentation Scans](#segmentation-scans)

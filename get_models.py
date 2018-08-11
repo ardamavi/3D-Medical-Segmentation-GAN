@@ -135,7 +135,7 @@ def get_segment_model(data_shape):
         pass
     """
 
-    model.compile(optimizer = Adadelta(lr=0.0001), loss='mse', metrics=['acc'])
+    model.compile(optimizer = Adadelta(lr=0.001), loss='mse', metrics=['acc'])
 
     print('Segment Model Architecture:')
     print(model.summary())
@@ -150,7 +150,7 @@ def get_GAN(input_shape, Generator, Discriminator):
 
     # Compile GAN:
     gan = Model(input_gan, gan_output)
-    gan.compile(optimizer=Adadelta(lr=0.0001), loss='mse', metrics=['accuracy'])
+    gan.compile(optimizer=Adadelta(lr=0.001), loss='mse', metrics=['accuracy'])
 
     print('GAN Architecture:')
     print(gan.summary())
@@ -214,7 +214,7 @@ def get_Discriminator(input_shape_1, input_shape_2, Encoder):
     dis_similarity_output = Activation('sigmoid')(dis_fc_4)
 
     Discriminator = Model(inputs=[dis_inputs_1, dis_inputs_2], outputs=dis_similarity_output)
-    Discriminator.compile(optimizer=Adadelta(lr=0.0001), loss='mse', metrics=['accuracy'])
+    Discriminator.compile(optimizer=Adadelta(lr=0.001), loss='mse', metrics=['accuracy'])
 
     print('Discriminator Architecture:')
     print(Discriminator.summary())
