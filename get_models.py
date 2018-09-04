@@ -6,7 +6,7 @@ from keras import backend as K
 from keras.optimizers import Adadelta
 from keras.utils import multi_gpu_model
 from keras.models import model_from_json
-from keras.layers import Input, Conv3D, Dense, UpSampling3D, Activation, MaxPooling3D, Dropout, concatenate, Flatten, Multiply
+from keras.layers import Input, Conv3D, Dense, UpSampling3D, Activation, MaxPooling3D, Dropout, concatenate, Flatten, Multiply, Subtract
 
 def save_model(model, path='Data/Model/', model_name = 'model', weights_name = 'weights'):
     if not os.path.exists(path):
@@ -135,7 +135,7 @@ def get_segment_model(data_shape):
         pass
     """
 
-    model.compile(optimizer = Adadelta(lr=0.001), loss='mse', metrics=['acc'])
+    model.compile(optimizer = Adadelta(lr=0.01), loss='mse', metrics=['acc'])
 
     print('Segment Model Architecture:')
     print(model.summary())
@@ -150,7 +150,7 @@ def get_GAN(input_shape, Generator, Discriminator):
 
     # Compile GAN:
     gan = Model(input_gan, gan_output)
-    gan.compile(optimizer=Adadelta(lr=0.001), loss='mse', metrics=['accuracy'])
+    gan.compile(optimizer=Adadelta(lr=0.01), loss='mse', metrics=['accuracy'])
 
     print('GAN Architecture:')
     print(gan.summary())
@@ -164,57 +164,50 @@ def get_Generator(input_shape):
 
 def get_Discriminator(input_shape_1, input_shape_2, Encoder):
 
-    dis_inputs_1 = Input(shape=input_shape_1) # For Encoder Model
-    dis_inputs_2 = Input(shape=input_shape_2) # From Segmentated Image
+    dis_inputs_1 = Input(shape=input_shape_1) # Image
+    dis_inputs_2 = Input(shape=input_shape_2) # Segmentation
+
+    mul_1 = Multiply()([dis_inputs_1, dis_inputs_2]) # Getting segmented part
 
     encoder_output_1 = Encoder(dis_inputs_1)
 
-    mul_1 = Multiply()([dis_inputs_1, dis_inputs_2])
-
     encoder_output_2 = Encoder(mul_1)
 
-    merge_dis = concatenate([encoder_output_1, encoder_output_2])
+    subtract_dis = Subtract()([encoder_output_1, encoder_output_2])
 
-    dis_conv_block = Conv3D(128, (3, 3, 3), strides=(1, 1, 1), padding='same')(merge_dis)
+    dis_conv_block = Conv3D(128, (3, 3, 3), strides=(1, 1, 1), padding='same')(subtract_dis)
     dis_conv_block = Activation('relu')(dis_conv_block)
     dis_conv_block = Conv3D(128, (3, 3, 3), strides=(1, 1, 1), padding='same')(dis_conv_block)
     dis_conv_block = Activation('relu')(dis_conv_block)
     dis_conv_block = MaxPooling3D(pool_size=(2, 2, 2), strides=(2, 2, 2))(dis_conv_block)
 
-    dis_conv_block = Conv3D(128, (3, 3, 3), strides=(1, 1, 1), padding='same')(dis_conv_block)
+    dis_conv_block = Conv3D(64, (3, 3, 3), strides=(1, 1, 1), padding='same')(dis_conv_block)
     dis_conv_block = Activation('relu')(dis_conv_block)
-    dis_conv_block = Conv3D(128, (3, 3, 3), strides=(1, 1, 1), padding='same')(dis_conv_block)
+    dis_conv_block = Conv3D(64, (3, 3, 3), strides=(1, 1, 1), padding='same')(dis_conv_block)
     dis_conv_block = Activation('relu')(dis_conv_block)
 
-    dis_conv_block = Conv3D(64, (3, 3, 3), strides=(1, 1, 1), padding='same')(dis_conv_block)
+    dis_conv_block = Conv3D(32, (3, 3, 3), strides=(1, 1, 1), padding='same')(dis_conv_block)
     dis_conv_block = Activation('relu')(dis_conv_block)
-    dis_conv_block = Conv3D(64, (3, 3, 3), strides=(1, 1, 1), padding='same')(dis_conv_block)
+    dis_conv_block = Conv3D(32, (3, 3, 3), strides=(1, 1, 1), padding='same')(dis_conv_block)
     dis_conv_block = Activation('relu')(dis_conv_block)
 
     flat_1 = Flatten()(dis_conv_block)
 
-    dis_fc_1 = Dense(512)(flat_1)
-    dis_fc_1 = Activation('relu')(dis_fc_1)
-    dis_fc_1 = Dense(512)(dis_fc_1)
+    dis_fc_1 = Dense(256)(flat_1)
     dis_fc_1 = Activation('relu')(dis_fc_1)
 
-    dis_drp_1 = Dropout(0.2)(dis_fc_1)
+    dis_drp_1 = Dropout(0.5)(dis_fc_1)
 
-    dis_fc_2 = Dense(256)(dis_drp_1)
+    dis_fc_2 = Dense(128)(dis_drp_1)
     dis_fc_2 = Activation('relu')(dis_fc_2)
 
-    dis_drp_2 = Dropout(0.2)(dis_fc_2)
+    dis_drp_2 = Dropout(0.5)(dis_fc_2)
 
-    dis_fc_3 = Dense(64)(dis_drp_2)
-    dis_fc_3 = Activation('relu')(dis_fc_3)
-
-    dis_drp_3 = Dropout(0.2)(dis_fc_3)
-
-    dis_fc_4 = Dense(1)(dis_drp_3)
-    dis_similarity_output = Activation('sigmoid')(dis_fc_4)
+    dis_fc_3 = Dense(1)(dis_drp_2)
+    dis_similarity_output = Activation('sigmoid')(dis_fc_3)
 
     Discriminator = Model(inputs=[dis_inputs_1, dis_inputs_2], outputs=dis_similarity_output)
-    Discriminator.compile(optimizer=Adadelta(lr=0.001), loss='mse', metrics=['accuracy'])
+    Discriminator.compile(optimizer=Adadelta(lr=0.01), loss='binary_crossentropy', metrics=['accuracy'])
 
     print('Discriminator Architecture:')
     print(Discriminator.summary())

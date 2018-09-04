@@ -32,7 +32,7 @@ def train_seg_model(model, splitted_npy_dataset_path, test_path, epochs):
 
         scores = model.evaluate(X_test, Y_test)
         dice_score = dice_coefficient(X_test, Y_test)
-        print('Test loss:', scores[0], 'Test accuracy:', scores[1], 'Dice Coefficient Accuracy:', dice_score)
+        print('Test loss:', scores[0], '\nTest accuracy:', scores[1], '\nDice Coefficient Accuracy:', dice_score)
     return model
 
 # Dice Coefficient Loss Function
@@ -94,7 +94,7 @@ def train_gan(Generator, Encoder, Discriminator, GAN, splitted_npy_dataset_path,
 
         scores = Generator.evaluate(X_test, Y_test)
         dice_score = dice_coefficient(X_test, Y_test)
-        print('Test Loss:', scores[0], 'Test Accuracy:', scores[1], 'Dice Coefficient Accuracy:', dice_score)
+        print('Test Loss:', scores[0], '\nTest Accuracy:', scores[1], '\nDice Coefficient Accuracy:', dice_score)
         save_model(Generator, path='Data/Checkpoints/GAN-Models/Generator/', model_name = 'model', weights_name = 'weights')
         print('Segmentation model checkpoints saved to "Data/Chackpoints/GAN-Models/Generator/"')
 
