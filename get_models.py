@@ -135,7 +135,7 @@ def get_segment_model(data_shape):
         pass
     """
 
-    model.compile(optimizer = Adadelta(lr=0.01), loss='mse', metrics=['acc'])
+    model.compile(optimizer = Adadelta(lr=0.01), loss=dice_coefficient_loss, metrics=[dice_coefficient, 'acc'])
 
     print('Segment Model Architecture:')
     print(model.summary())

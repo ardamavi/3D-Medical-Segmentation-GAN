@@ -12,6 +12,13 @@ epochs = 100
 batch_size = 4
 test_size = 0.2
 
+# Dice Coefficient Loss Function
+def dice_coefficient(y_true, y_pred):
+    smoothing_factor = 1
+    flat_y_true = y_true.flatten()
+    flat_y_pred = y_pred.flatten()
+    return (2. * np.sum(flat_y_true * flat_y_pred) + smoothing_factor) / (np.sum(flat_y_true) + np.sum(flat_y_pred) + smoothing_factor)
+
 # Training Segment Model:
 def train_seg_model(model, splitted_npy_dataset_path, test_path, epochs):
     test_XY = np.load(test_path+'/test.npy')
@@ -34,13 +41,6 @@ def train_seg_model(model, splitted_npy_dataset_path, test_path, epochs):
         dice_score = dice_coefficient(model.predict(X_test), Y_test)
         print('Test loss:', scores[0], '\nTest accuracy:', scores[1], '\nDice Coefficient Accuracy:', dice_score)
     return model
-
-# Dice Coefficient Loss Function
-def dice_coefficient(y_true, y_pred):
-    smoothing_factor = 1
-    flat_y_true = y_true.flatten()
-    flat_y_pred = y_pred.flatten()
-    return (2. * np.sum(flat_y_true * flat_y_pred) + smoothing_factor) / (np.sum(flat_y_true) + np.sum(flat_y_pred) + smoothing_factor)
 
 # Training GAN:
 def train_gan(Generator, Encoder, Discriminator, GAN, splitted_npy_dataset_path, test_path, epochs):
@@ -141,4 +141,4 @@ def main(train_gan_model = True):
         return segment_model
 
 if __name__ == '__main__':
-    main(train_gan_model = True)
+    main(train_gan_model = False)
